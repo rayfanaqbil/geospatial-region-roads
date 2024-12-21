@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Geo API
+  description: API untuk mendapatkan data jalan dan wilayah berdasarkan koordinat.
+  version: 1.0.0
+servers:
+  - url: https://asia-southeast2-awangga.cloudfunctions.net/parkirgratis
+paths:
+  /data/gis/jalan:
+    post:
+      tags:
+        - roads
+      summary: Get roads data around a point
+      description: Mengembalikan data jalan di sekitar titik koordinat yang diberikan dengan jarak maksimum tertentu.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                long:
+                  type: number
+                  format: float
+                  description: Longitude coordinate
+                  example: 107.5758500037501
+                lat:
+                  type: number
+                  format: float
+                  description: Latitude coordinate
+                  example: -6.874720427234501
+                max_distance:
+                  type: integer
+                  description: Maximum distance (in meters) to search for roads
+                  example: 100
+      responses:
+        "200":
+          description: List of roads around the given point
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Road"
+        "400":
+          description: Invalid request
+  /data/gis/region:
+    post:
+      tags:
+        - region
+      summary: Get region data around a point
+      description: Mengembalikan data wilayah di sekitar titik koordinat yang diberikan.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                long:
+                  type: number
+                  format: float
+                  description: Longitude coordinate
+                  example: 107.5758500037501
+                lat:
+                  type: number
+                  format: float
+                  description: Latitude coordinate
+                  example: -6.874720427234501
+      responses:
+        "200":
+          description: Region data around the given point
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Region"
+        "400":
+          description: Invalid request
+components:
+  schemas:
+    Road:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the road
+          example: "12345"
+        name:
+          type: string
+          description: Name of the road
+          example: "Jalan Raya Bandung"
+        length:
+          type: number
+          description: Length of the road in meters
+          example: 1200
+        geometry:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "LineString"
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  format: float
+                  description: Coordinates of the road
+                  example: [107.575, -6.874]
+    Region:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the region
+          example: "67890"
+        name:
+          type: string
+          description: Name of the region
+          example: "Bandung City"
+        type:
+          type: string
+          description: Type of region (e.g., city, district)
+          example: "city"
+        boundary:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "Polygon"
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  format: float
+                  description: Coordinates of the region boundary
+                  example: [107.575, -6.874]
